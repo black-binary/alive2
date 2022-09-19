@@ -14,7 +14,8 @@
 
 using namespace std;
 
-// max_procs = min(Linux default fifo buffer size, OS X default fifo buffer size)
+// max_procs = min(Linux default fifo buffer size, OS X default fifo buffer
+// size)
 static const int max_procs = 16384;
 
 static char fifo_filename[1024];
@@ -23,13 +24,13 @@ static void count_tokens(int fd, int nprocs) {
   int flags = fcntl(fd, F_GETFL, 0);
   if (flags == -1) {
     perror("alive-jobserver: fcntl");
-    exit(-1);
+    exit(666);
   }
   flags |= O_NONBLOCK;
   int res = fcntl(fd, F_SETFL, flags);
   if (res != 0) {
     perror("alive-jobserver: fcntl");
-    exit(-1);
+    exit(666);
   }
   int toks = 0;
   char c;
@@ -41,7 +42,7 @@ static void count_tokens(int fd, int nprocs) {
          << " jobserver tokens "
             "but instead it found "
          << toks << "\n";
-    exit(-1);
+    exit(666);
   }
 }
 
@@ -49,13 +50,13 @@ static void remove_fifo() {
   int res = unlink(fifo_filename);
   if (res != 0) {
     perror("unlink");
-    exit(-1);
+    exit(666);
   }
 }
 
 static void sigint_handler(int) {
   remove_fifo();
-  exit(-1);
+  exit(666);
 }
 
 static void usage() {
@@ -72,7 +73,7 @@ static void usage() {
           "if no command is specified, the jobserver hangs forever, and you\n"
           "must manually use the ALIVE_JOBSERVER_FIFO environment variable\n"
           "to pass this information to the Alive2 LLVM plugin.\n";
-  exit(-1);
+  exit(666);
 }
 
 int main(int argc, char *const argv[]) {
@@ -101,13 +102,13 @@ int main(int argc, char *const argv[]) {
   int res = mkfifo(fifo_filename, 0666);
   if (res != 0) {
     perror("alive-jobserver: mkfifo");
-    exit(-1);
+    exit(666);
   }
 
   int pipefd = open(fifo_filename, O_RDWR);
   if (pipefd < 0) {
     perror("alive-jobserver: open");
-    exit(-1);
+    exit(666);
   }
 
   for (int i = 0; i < nprocs; ++i) {
@@ -115,7 +116,7 @@ int main(int argc, char *const argv[]) {
     res = write(pipefd, &c, 1);
     if (res != 1) {
       perror("alive-jobserver: write");
-      exit(-1);
+      exit(666);
     }
   }
 
@@ -134,23 +135,23 @@ int main(int argc, char *const argv[]) {
     pid_t pid = fork();
     if (pid == -1) {
       perror("alive-jobserver: fork");
-      exit(-1);
+      exit(666);
     }
     if (pid == 0) {
       std::signal(SIGINT, SIG_DFL);
       res = setenv("ALIVE_JOBSERVER_FIFO", fifo_filename, true);
       if (res != 0) {
         perror("setenv");
-        exit(-1);
+        exit(666);
       }
       res = setenv("ALIVECC_PARALLEL_FIFO", "1", true);
       if (res != 0) {
         perror("setenv");
-        exit(-1);
+        exit(666);
       }
       execvp(argv[2], &argv[2]);
       perror("alive-jobserver: exec");
-      exit(-1);
+      exit(666);
     }
     wait(nullptr);
   }

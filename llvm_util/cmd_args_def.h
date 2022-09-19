@@ -70,7 +70,7 @@ if (!opt_outputfile.empty()) {
   out = &out_file;
   if (!opt_report_dir.empty()) {
     cerr << "Cannot use -o and -report-dir at the same time!\n";
-    exit(-1);
+    exit(234);
   }
 }
 

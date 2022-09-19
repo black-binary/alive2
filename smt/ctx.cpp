@@ -20,7 +20,7 @@ static void z3_error_handler(Z3_context ctx, Z3_error_code err) {
     return;
 
   dbg() << "Severe Z3 error: " << str << " [code=" << err << "]\n";
-  _Exit(-1);
+  _Exit(233);
 }
 
 namespace smt {
@@ -42,8 +42,8 @@ void context::initialize() {
 
   no_timeout_param = Z3_mk_params(ctx);
   Z3_params_inc_ref(ctx, no_timeout_param);
-  Z3_params_set_uint(ctx, no_timeout_param,
-                     Z3_mk_string_symbol(ctx, "timeout"), 0);
+  Z3_params_set_uint(ctx, no_timeout_param, Z3_mk_string_symbol(ctx, "timeout"),
+                     0);
 }
 
 void context::destroy() {
@@ -52,4 +52,4 @@ void context::destroy() {
   Z3_del_context(ctx);
 }
 
-}
+} // namespace smt

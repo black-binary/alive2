@@ -8,10 +8,10 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
+#include <string.h>
 #include <string>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <string.h>
 
 using namespace std;
 
@@ -130,7 +130,7 @@ bool parallel::readFromChildren(bool blocking) {
   int res = poll(pfd.data(), max_active_children, blocking ? -1 : 0);
   if (res == -1) {
     perror("poll");
-    exit(-1);
+    exit(236);
   }
   if (res == 0) {
     assert(!blocking);
